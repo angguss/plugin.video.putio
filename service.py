@@ -80,6 +80,10 @@ class PutioService(object):
             percentage = (float(downloaded) / total) * 100
             self.progressdialog.update(int(percentage), __addon__.getLocalizedString(30036) % speed_formatted, name)
 
+    # Callback to determine whether to kill this service
+    def cancelCallback(self):
+        return xbmc.abortRequested
+
     def traverseDirectory(self, id, recursive = True):
         folder_listing = self.putioHandler.getFolderListing(id)
         item_listing = []
@@ -121,7 +125,7 @@ class PutioService(object):
             if self.show_download_bar:
                 self.progressdialog.update(0, __addon__.getLocalizedString(30036) % item.name, item.name)
             # do non-recursion at the moment
-            self.putioHandler.downloadItem(item, dest_directory, self.progressCallback, self.resume_downloads)
+            self.putioHandler.downloadItem(item, dest_directory, self.progressCallback, self.cancelCallback, self.resume_downloads)
 
             if delete_after_download:
                 item.delete()

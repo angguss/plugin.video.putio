@@ -19,9 +19,6 @@ client.Transfer.add('http://example.com/good.torrent')
 
 """
 
-import xbmc
-import xbmcgui
-
 import traceback
 import json
 import logging
@@ -255,7 +252,6 @@ class _File(_BaseResource):
 
 
         if os.path.exists(os.path.join(dest, filename)):
-            xbmc.log(msg="Skipping download of %s, already exists." % filename, level=xbmc.LOGDEBUG)
             return
 
         # download to .part file
@@ -275,8 +271,12 @@ class _File(_BaseResource):
                     chunk_ct = 0
                 f.write(data)
 
-                if xbmc.abortRequested:
-                    was_canceled = True
+                if cancel_callback:
+                    if cancel_callback():
+                        was_canceled = True
+
+                if was_canceled:
+                    break
 
             download_finished = True
 

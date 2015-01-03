@@ -20,6 +20,8 @@
 import putio
 from exceptions import PutioAuthFailureException
 
+import xbmcaddon as xa
+
 class PutioApiHandler(object):
     """
     Class to handle putio api calls for XBMC actions
@@ -46,8 +48,8 @@ class PutioApiHandler(object):
     def getItemPath(self, itemId):
         return self.apiclient.File.get_path(itemId)
 
-    def downloadItem(self, item, destination, progress_callback, resume_download):
-        return item.download(dest=destination, range=None, callback=progress_callback, resume=resume_download)
+    def downloadItem(self, item, destination, progress_callback, cancel_callback, resume_download):
+        return item.download(dest=destination, range=None, progress_callback=progress_callback, cancel_callback=cancel_callback, resume=resume_download)
 
     def getRootListing(self):
         items = []

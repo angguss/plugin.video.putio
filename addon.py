@@ -38,9 +38,9 @@ except ValueError:
     pluginId = 0
 
 itemId = sys.argv[2].lstrip("?")
-addon = xa.Addon(PLUGIN_ID)
+__addon__ = xa.Addon(PLUGIN_ID)
 
-__addonname__       = addon.getAddonInfo( "name" )
+__addonname__       = __addon__.getAddonInfo( "name" )
 
 
 def runOutOfContext():
@@ -61,27 +61,27 @@ def set_dir(type, id):
     typeString = ""
 
     if type == "single_dir":
-        addon.setSetting("single_monitor_dir", str(id))
+        __addon__.setSetting("single_monitor_dir", str(id))
         was_set = True
-        typeString = addon.getLocalizedString(30024)
+        typeString = __addon__.getLocalizedString(30024)
     elif type == "tv_dir":
-        addon.setSetting("multi_tv_monitor_dir", str(id))
+        __addon__.setSetting("multi_tv_monitor_dir", str(id))
         was_set = True
-        typeString = addon.getLocalizedString(30022)
+        typeString = __addon__.getLocalizedString(30022)
     elif type == "movie_dir":
-        addon.setSetting("multi_movie_monitor_dir", str(id))
+        __addon__.setSetting("multi_movie_monitor_dir", str(id))
         was_set = True
-        typeString = addon.getLocalizedString(30021)
+        typeString = __addon__.getLocalizedString(30021)
     elif type == "music_dir":
-        addon.setSetting("multi_music_monitor_dir", str(id))
+        __addon__.setSetting("multi_music_monitor_dir", str(id))
         was_set = True
-        typeString = addon.getLocalizedString(30023)
+        typeString = __addon__.getLocalizedString(30023)
 
     if was_set:
         dialog = xbmcgui.Dialog()
         dialog.ok(
-                addon.getLocalizedString(30019),
-                addon.getLocalizedString(30020) % typeString
+                __addon__.getLocalizedString(30019),
+                __addon__.getLocalizedString(30020) % typeString
             )
 
 # Main program
@@ -101,13 +101,13 @@ def main():
         else:
             populateDir(pluginUrl, pluginId, putio.getRootListing(), putio)
     except PutioAuthFailureException as e:
-        addonid = addon.getAddonInfo("id")
-        addon = xa.Addon(addonid)
+        addonid = __addon__.getAddonInfo("id")
+        __addon__ = xa.Addon(addonid)
         r = requests.get("https://put.io/xbmc/getuniqueid")
         o = json.loads(r.content)
 
         uniqueid = o['id']
-        oauthtoken = addon.getSetting('oauthkey')
+        oauthtoken = __addon__.getSetting('oauthkey')
 
         if not oauthtoken:
             dialog = xbmcgui.Dialog()
@@ -124,7 +124,7 @@ def main():
                 oauthtoken = o['oauthtoken']
 
                 if oauthtoken:
-                    addon.setSetting("oauthkey", str(oauthtoken))
+                    __addon__.setSetting("oauthkey", str(oauthtoken))
                     main()
             except Exception as e:
                 dialog = xbmcgui.Dialog()

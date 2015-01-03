@@ -27,7 +27,7 @@ import xbmcgui as xg
 import xbmcplugin as xp
 from resources import PLUGIN_ID
 from resources.lib.common import PutioApiHandler
-addon = xa.Addon(PLUGIN_ID)
+__addon__ = xa.Addon(PLUGIN_ID)
 
 # Service to handle polling of Put.io API and download new files
 class PutioService(object):
@@ -48,9 +48,9 @@ class PutioService(object):
     def refreshSettings(self):
         # get time to wait between polls from settings
         # and do some cool parsing
-        self.time_to_wait = self.parseTime(addon.getSetting("poll_time"))
-        self.resume_downloads = addon.getSetting("resume_downloads") == "true"
-        self.recursive_scan = addon.getSetting("subfolder_search") == "true"
+        self.time_to_wait = self.parseTime(__addon__.getSetting("poll_time"))
+        self.resume_downloads = __addon__.getSetting("resume_downloads") == "true"
+        self.recursive_scan = __addon__.getSetting("subfolder_search") == "true"
 
     # takes minutes, convert to millisec
     def parseTime(self, time):
@@ -78,7 +78,7 @@ class PutioService(object):
 
         if self.progressdialog != None and total != -1 and self.show_download_bar:
             percentage = (float(downloaded) / total) * 100
-            self.progressdialog.update(int(percentage), addon.getLocalizedString(30036) % speed_formatted, name)
+            self.progressdialog.update(int(percentage), __addon__.getLocalizedString(30036) % speed_formatted, name)
 
     def traverseDirectory(self, id, recursive = True):
         folder_listing = self.putioHandler.getFolderListing(id)
@@ -106,20 +106,20 @@ class PutioService(object):
         if progress_total <= 0:
             return
 
-        self.show_download_bar = addon.getSetting("show_download_bar") == "true"
+        self.show_download_bar = __addon__.getSetting("show_download_bar") == "true"
 
         if self.show_download_bar:
             self.progressdialog = xg.DialogProgressBG()
-            self.progressdialog.create(addon.getLocalizedString(30036) % '', '')
+            self.progressdialog.create(__addon__.getLocalizedString(30036) % '', '')
 
-        delete_after_download = addon.getSetting("delete_after_download") == "true"
-        clean_filenames = addon.getSetting("clean_filenames") == "true"
+        delete_after_download = __addon__.getSetting("delete_after_download") == "true"
+        clean_filenames = __addon__.getSetting("clean_filenames") == "true"
 
         downloaded_file = False
 
         for item in item_listing:
             if self.show_download_bar:
-                self.progressdialog.update(0, addon.getLocalizedString(30036) % item.name, item.name)
+                self.progressdialog.update(0, __addon__.getLocalizedString(30036) % item.name, item.name)
             # do non-recursion at the moment
             self.putioHandler.downloadItem(item, dest_directory, self.progressCallback, self.resume_downloads)
 
@@ -159,8 +159,8 @@ class PutioService(object):
 
 
     def singleDownload(self):
-        check_directory = addon.getSetting('single_dir')
-        dest_directory = addon.getSetting('single_monitor_dir')
+        check_directory = __addon__.getSetting('single_dir')
+        dest_directory = __addon__.getSetting('single_monitor_dir')
         if check_directory == "-1" or dest_directory == "":
             xbmc.log("Single download is enabled but directories haven't been set up", level=xbmc.LOGDEBUG)
             return
@@ -174,15 +174,15 @@ class PutioService(object):
         move_to_subdirectory = False
 
         if download_type == self.types["movies"]:
-            check_directory = addon.getSetting("multi_movie_monitor_dir")
-            dest_directory = addon.getSetting("multi_movie_dir")
+            check_directory = __addon__.getSetting("multi_movie_monitor_dir")
+            dest_directory = __addon__.getSetting("multi_movie_dir")
         elif download_type == self.types["tv"]:
-            check_directory = addon.getSetting("multi_tv_monitor_dir")
-            dest_directory = addon.getSetting("multi_tv_dir")
+            check_directory = __addon__.getSetting("multi_tv_monitor_dir")
+            dest_directory = __addon__.getSetting("multi_tv_dir")
             move_to_subdirectory = True
         elif download_type == self.types["music"]:
-            check_directory = addon.getSetting("multi_music_monitor_dir")
-            dest_directory = addon.getSetting("multi_music_dir")
+            check_directory = __addon__.getSetting("multi_music_monitor_dir")
+            dest_directory = __addon__.getSetting("multi_music_dir")
 
         if download_type != self.types["tv"] and download_type != self.types["movies"]:
             return
@@ -205,14 +205,14 @@ class PutioService(object):
 
     def run(self):
         # need a putio api object
-        self.putioHandler = PutioApiHandler(addon.getAddonInfo("id"))
+        self.putioHandler = PutioApiHandler(__addon__.getAddonInfo("id"))
 
         xbmc.sleep(2000)
 
         i = 0
         while(not xbmc.abortRequested):
             self.refreshSettings()
-            single_download_mode = addon.getSetting("single_download_enabled")
+            single_download_mode = __addon__.getSetting("single_download_enabled")
             if single_download_mode == True or single_download_mode == "true":
                 self.singleDownload()
             else:

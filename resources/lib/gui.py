@@ -27,12 +27,12 @@ from resources import PLUGIN_ID
 
 __all__ = ("populateDir", "play")
 
-addon = xa.Addon(PLUGIN_ID)
+__addon__ = xa.Addon(PLUGIN_ID)
 
 def populateDir(pluginUrl, pluginId, listing, putio):
-    single_download_enabled = addon.getSetting('single_download_enabled')
+    single_download_enabled = __addon__.getSetting('single_download_enabled')
 
-    context_text = addon.getLocalizedString(30037)
+    context_text = __addon__.getLocalizedString(30037)
 
     for item in listing:
 
@@ -40,7 +40,7 @@ def populateDir(pluginUrl, pluginId, listing, putio):
             screenshot = item.screenshot
         else:
             screenshot = os.path.join(
-                addon.getAddonInfo("path"),
+                __addon__.getAddonInfo("path"),
                 "resources",
                 "images",
                 "mid-folder.png"
@@ -56,14 +56,14 @@ def populateDir(pluginUrl, pluginId, listing, putio):
 
         commands = []
 
-        # commands.append((addon.getLocalizedString(30039), 'RunScript(' + PLUGIN_ID + ', OOC, download, "' + str(item.id) + '")', ))
+        # commands.append((__addon__.getLocalizedString(30039), 'RunScript(' + PLUGIN_ID + ', OOC, download, "' + str(item.id) + '")', ))
 
         if single_download_enabled == True or single_download_enabled == "true":
-            commands.append((context_text % addon.getLocalizedString(30016), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, single_dir, "' + str(item.id) + '")', ))
+            commands.append((context_text % __addon__.getLocalizedString(30016), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, single_dir, "' + str(item.id) + '")', ))
         else:
-            commands.append((context_text % addon.getLocalizedString(30014), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, tv_dir, "' + str(item.id) + '")', ))
-            commands.append((context_text % addon.getLocalizedString(30013), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, movie_dir, "' + str(item.id) + '")', ))
-            commands.append((context_text % addon.getLocalizedString(30015), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, music_dir, "' + str(item.id) + '")', ))
+            commands.append((context_text % __addon__.getLocalizedString(30014), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, tv_dir, "' + str(item.id) + '")', ))
+            commands.append((context_text % __addon__.getLocalizedString(30013), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, movie_dir, "' + str(item.id) + '")', ))
+            commands.append((context_text % __addon__.getLocalizedString(30015), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, music_dir, "' + str(item.id) + '")', ))
 
         listItem.setInfo(item.content_type, {
             'originaltitle': item.name,

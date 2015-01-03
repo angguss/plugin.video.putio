@@ -17,13 +17,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
-
 import putio
-import xbmc
-import xbmcaddon as xa
 from exceptions import PutioAuthFailureException
-
 
 class PutioApiHandler(object):
     """
@@ -52,7 +47,6 @@ class PutioApiHandler(object):
         return self.apiclient.File.get_path(itemId)
 
     def downloadItem(self, item, destination, progress_callback, resume_download):
-        xbmc.log("Starting download of " + item.name, level=xbmc.LOGDEBUG)
         return item.download(dest=destination, range=None, callback=progress_callback, resume=resume_download)
 
     def getRootListing(self):

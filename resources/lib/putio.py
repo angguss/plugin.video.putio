@@ -19,10 +19,15 @@ client.Transfer.add('http://example.com/good.torrent')
 
 """
 
+import xbmc
+import xbmcgui
+
+import traceback
 import json
 import logging
 import os
 import re
+import time
 from urllib import urlencode
 
 import requests
@@ -76,14 +81,13 @@ class Client(object):
         self.File = type('File', (_File,), attributes)
         self.Transfer = type('Transfer', (_Transfer,), attributes)
 
-    def request(self, path, method='GET', params=None, data=None, files=None, headers=None, raw=False):
+    def request(self, path, method='GET', params=None, data=None, files=None, headers=None, raw=False, stream=True):
         '''
         Wrapper around requests.request()
 
         Prepends API_URL to path.
         Inserts oauth_token to query params.
         Parses response as JSON and returns it.
-
         '''
 
         if not params:
@@ -102,7 +106,8 @@ class Client(object):
             files=files,
             headers=headers,
             allow_redirects=True,
-            verify=False
+            verify=False,
+            stream=stream
         )
 
         logger.debug('response: %s', r)
@@ -160,6 +165,22 @@ class _File(_BaseResource):
         return files
 
     @classmethod
+    def get_path(cls, id=0):
+        cur_id = id
+        path = ''
+        while cur_id != 0:
+            d = cls.GET(cur_id)
+
+            if cur_id != id:
+                path = d.name + "/" + path
+            else:
+                path = d.name
+
+            cur_id = d.parent_id
+        path = "/" + path
+        return path
+
+    @classmethod
     def GET(cls, id=0, as_dict=False):
         d = cls.client.request('/files/%s' % id, params={})
         f = cls(dict(d['file']))
@@ -186,25 +207,93 @@ class _File(_BaseResource):
     def stream_url(self):
         return API_URL + '/files/%s/stream?oauth_token=%s' % (self.id, self.client.access_token)
 
-    def download(self, dest='.', range=None):
+    def download(self, dest='.', range=None, callback=None, resume=True):
+
+        # means that download was originally started but failed (kodi crash maybe?)
+        if os.path.exists(os.path.join(dest, self.name + ".part")):
+            if resume:
+                range = os.path.getsize(os.path.join(dest, self.name + ".part"))
+            else:
+                os.remove(os.path.join(dest, self.name + ".part"))
+
+        total_length = -1
+
         if range:
-            headers = {'Range': 'bytes=%s-%s' % range}
+            # If no content-length was sent then it's resuming a previously stopped
+            # download and won't send content-length so will send a new request to try to
+            # get the length
+            content_length_r = self.client.request('/files/%s/download' % self.id, raw=True, headers=None)
+            try:
+                total_length = int(content_length_r.headers['Content-Length'])
+            except KeyError:
+                total_length = -1
+
+            headers = {'Range': 'bytes={}-{}'.format(str(range),total_length)}
         else:
             headers = None
 
         r = self.client.request('/files/%s/download' % self.id, raw=True, headers=headers)
 
+
+        if not range:
+            total_length = int(r.headers['Content-Length'])
+
+        filename = ''
+
+        # this regex is provided by put.io but seems to fail everytime
+        try:
+            filename = re.match('attachment; filename\="(.*)"', r.headers['Content-Disposition']).groups()[0]
+        except AttributeError:
+            filename = self.name
+
+        downloaded = 0
+
         if range:
-            return r.content
+            downloaded = range
 
-        filename = re.match('attachment; filename\="(.*)"', r.headers['Content-Disposition']).groups()[0]
+        chunk_ct = 0
 
-        with open(os.path.join(dest, filename), 'wb') as f:
-            for data in r.iter_content():
+
+        if os.path.exists(os.path.join(dest, filename)):
+            xbmc.log(msg="Skipping download of %s, already exists." % filename, level=xbmc.LOGDEBUG)
+            return
+
+        # download to .part file
+        download_finished = False
+        was_canceled = False
+        started_time = time.time()
+        downloaded_this_session = 0
+        with open(os.path.join(dest, filename + ".part"), 'ab') as f:
+            for data in r.iter_content(chunk_size=1024):
+                downloaded += len(data)
+                downloaded_this_session += len(data)
+                chunk_ct += 1
+
+                if chunk_ct > 32:
+                    if callback:
+                        callback(started_time, downloaded, downloaded_this_session, total_length, self.name)
+                    chunk_ct = 0
                 f.write(data)
 
+                if xbmc.abortRequested:
+                    was_canceled = True
+
+            download_finished = True
+
+        if not download_finished and was_canceled:
+            os.delete(os.path.join(dest, filename + ".part"))
+        else:
+            os.rename(os.path.join(dest, filename + ".part"), os.path.join(dest, filename))
+
+    # delete method changed, now posts with files_id
     def delete(self):
-        return self.client.request('/files/%s/delete' % self.id)
+        # return self.client.request('/files/%s/delete' % self.id)
+        return self.client.request('/files/delete',
+            method='POST',
+            data=dict(
+                file_ids=self.id
+            )
+        )
 
     @property
     def subtitle(self):

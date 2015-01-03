@@ -1,0 +1,190 @@
+# XBMC Media Center language file
+# Addon Name: put.io
+# Addon id: plugin.video.putio
+# Addon version: 1.3.0
+# Addon Provider: Alper Kanat (tunix@raptiye.org), Angus Rigby (angus@angusrigby.co.uk)
+msgid ""
+msgstr ""
+"Project-Id-Version: XBMC-Addons\n"
+"Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
+"POT-Creation-Date: 2015-01-03 20:41+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Angus Rigby <angus@angusrigby.co.uk>\n"
+"Language-Team: LANGUAGE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+msgctxt "Addon Summary"
+msgid "put.io for Kodi"
+msgstr ""
+
+msgctxt "Addon Description"
+msgid "Put.io is a service that combines cloud storage and bittorrent. This addon allows you to stream directly from put.io or download files in the background. You need an account to use this plug-in. Get one from https://put.io"
+msgstr ""
+
+#Setting Categories
+
+msgctxt "#30000"
+msgid "Put.io Settings"
+msgstr ""
+
+#Messages
+
+msgctxt "#30001"
+msgid "Authentication Failure"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Please insert your oauth key settings!"
+msgstr ""
+
+msgctxt "#30003"
+msgid "OAuth2 Token"
+msgstr ""
+
+msgctxt "#30004"
+msgid "Download Destination Directory"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Account Settings"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Username"
+msgstr ""
+
+msgctxt "#30007"
+msgid "Password"
+msgstr ""
+
+msgctxt "#30008"
+msgid "Delete password after OAuth key obtained"
+msgstr ""
+
+msgctxt "#30009"
+msgid "Use Single Download Directory"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Music Destination Directory"
+msgstr ""
+
+msgctxt "#30011"
+msgid "TV Destination Directory"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Movie Destination Directory"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Music Monitor Directory"
+msgstr ""
+
+msgctxt "#30014"
+msgid "TV Monitor Directory"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Movie Destination Directory"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Download Monitor Directory"
+msgstr ""
+
+msgctxt "#30017"
+msgid "PC End"
+msgstr ""
+
+msgctxt "#30018"
+msgid "Put.io End (Configure in directory view, context folders)"
+msgstr ""
+
+msgctxt "#30019"
+msgid "Successfully set folder"
+msgstr ""
+
+msgctxt "#30020"
+msgid "The folder to monitor %s has been updated."
+msgstr ""
+
+msgctxt "#30021"
+msgid "Movies"
+msgstr ""
+
+msgctxt "#30022"
+msgid "TV shows"
+msgstr ""
+
+msgctxt "#30023"
+msgid "Music"
+msgstr ""
+
+msgctxt "#30024"
+msgid "Files"
+msgstr ""
+
+msgctxt "#30025"
+msgid "Download Settings"
+msgstr ""
+
+msgctxt "#30026"
+msgid "Max concurrent downloads (not implemented)"
+msgstr ""
+
+msgctxt "#30027"
+msgid "Max concurrent connections per download (not implemented)"
+msgstr ""
+
+msgctxt "#30028"
+msgid "Speed limit (kb/s) (not implemented)"
+msgstr ""
+
+msgctxt "#30029"
+msgid "Delete after download"
+msgstr ""
+
+msgctxt "#30030"
+msgid "Auto-resolve TV show names"
+msgstr ""
+
+msgctxt "#30031"
+msgid "Time between polls (minutes)"
+msgstr ""
+
+msgctxt "#30032"
+msgid "Show download progress bar"
+msgstr ""
+
+msgctxt "#30033"
+msgid "Enable automated downloads (restart Kodi after enabling)"
+msgstr ""
+
+msgctxt "#30034"
+msgid "Search in subfolders"
+msgstr ""
+
+msgctxt "#30035"
+msgid "Clean filenames after download (note: will break duplicate checks)"
+msgstr ""
+
+msgctxt "#30036"
+msgid "Downloading put.io file(%s)"
+msgstr ""
+
+msgctxt "#30037"
+msgid "Set %s"
+msgstr ""
+
+msgctxt "#30038"
+msgid "Resume failed downloads"
+msgstr ""
+
+msgctxt "#30039"
+msgid "Download now"
+msgstr ""

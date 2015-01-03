@@ -1,3 +1,17 @@
+2015-01-03  Angus Rigby  <angus@angusrigby.co.uk>
+
+    * Implemented background download service to monitor files,
+    when set up it will monitor directories on put.io for new files,
+    automatically download them, put them in folders if needed and
+    subsequently update the video library
+    * Added context menu to list views in the GUI to allow download
+    and setting directories for the download service
+    * Updated version to 1.3.0
+    * Works on Kodi (14.x)
+    * Updated put.io's code for deletion to work with updated API
+
+    * plugin.video.put.io/service.py: added
+
 2014-06-30  Alper Kanat  <tunix@raptiye.org>
 
 	* updated to gotham release & added some missing metadata

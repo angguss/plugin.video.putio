@@ -48,6 +48,13 @@ class PutioApiHandler(object):
     def getItem(self, itemId):
         return self.apiclient.File.GET(itemId)
 
+    def getItemPath(self, itemId):
+        return self.apiclient.File.get_path(itemId)
+
+    def downloadItem(self, item, destination, progress_callback, resume_download):
+        xbmc.log("Starting download of " + item.name, level=xbmc.LOGDEBUG)
+        return item.download(dest=destination, range=None, callback=progress_callback, resume=resume_download)
+
     def getRootListing(self):
         items = []
 

@@ -22,66 +22,124 @@ import time
 import requests
 
 import sys
+import xbmc
 import xbmcaddon as xa
 import xbmcgui
 from resources.lib.common import PutioApiHandler
 from resources.lib.exceptions import PutioAuthFailureException
 from resources.lib.gui import play, populateDir
-
-PLUGIN_ID = "plugin.video.putio"
+from resources import PLUGIN_ID
 
 pluginUrl = sys.argv[0]
-pluginId = int(sys.argv[1])
+pluginId = 0
+try:
+    pluginId = int(sys.argv[1])
+except ValueError:
+    pluginId = 0
+
 itemId = sys.argv[2].lstrip("?")
 addon = xa.Addon(PLUGIN_ID)
 
+__addonname__       = addon.getAddonInfo( "name" )
+
+
+def runOutOfContext():
+    to_call = sys.argv[2]
+    param1 = sys.argv[3]
+    param2 = sys.argv[4]
+
+    if to_call == "set_dir":
+        set_dir(param1, param2)
+    if to_call == "download":
+        download(param1)
+
+def download(id):
+    xbmc.log("Downloading...")
+
+def set_dir(type, id):
+    was_set = False
+    typeString = ""
+
+    if type == "single_dir":
+        addon.setSetting("single_monitor_dir", str(id))
+        was_set = True
+        typeString = addon.getLocalizedString(30024)
+    elif type == "tv_dir":
+        addon.setSetting("multi_tv_monitor_dir", str(id))
+        was_set = True
+        typeString = addon.getLocalizedString(30022)
+    elif type == "movie_dir":
+        addon.setSetting("multi_movie_monitor_dir", str(id))
+        was_set = True
+        typeString = addon.getLocalizedString(30021)
+    elif type == "music_dir":
+        addon.setSetting("multi_music_monitor_dir", str(id))
+        was_set = True
+        typeString = addon.getLocalizedString(30023)
+
+    if was_set:
+        dialog = xbmcgui.Dialog()
+        dialog.ok(
+                addon.getLocalizedString(30019),
+                addon.getLocalizedString(30020) % typeString
+            )
 
 # Main program
 def main():
-    putio = PutioApiHandler(addon.getAddonInfo("id"))
+    try:# Get the handler, pass in this plugin ID so we can get settings from the correct place
+        putio = PutioApiHandler(PLUGIN_ID)
 
-    if itemId:
-        item = putio.getItem(itemId)
+        # if a particular folder
+        if itemId:
+            item = putio.getItem(itemId)
 
-        if item.content_type:
-            if item.content_type == "application/x-directory":
-                populateDir(pluginUrl, pluginId, putio.getFolderListing(itemId))
-            else:
-                play(item, putio.getSubtitle(item))
-    else:
-        populateDir(pluginUrl, pluginId, putio.getRootListing())
+            if item.content_type:
+                if item.content_type == "application/x-directory":
+                    populateDir(pluginUrl, pluginId, putio.getFolderListing(itemId), putio)
+                else:
+                    play(item, putio.getSubtitle(item))
+        else:
+            populateDir(pluginUrl, pluginId, putio.getRootListing(), putio)
+    except PutioAuthFailureException as e:
+        addonid = addon.getAddonInfo("id")
+        addon = xa.Addon(addonid)
+        r = requests.get("https://put.io/xbmc/getuniqueid")
+        o = json.loads(r.content)
 
-try:
-    main()
-except PutioAuthFailureException as e:
-    addonid = addon.getAddonInfo("id")
-    addon = xa.Addon(addonid)
-    r = requests.get("https://put.io/xbmc/getuniqueid")
-    o = json.loads(r.content)
-    uniqueid = o['id']
-    oauthtoken = addon.getSetting('oauthkey')
+        uniqueid = o['id']
+        oauthtoken = addon.getSetting('oauthkey')
 
-    if not oauthtoken:
-        dialog = xbmcgui.Dialog()
-        dialog.ok(
-            "Oauth2 Key Required",
-            "Visit put.io/xbmc and enter this code: %s\nthen press OK." % uniqueid
-        )
-
-    while not oauthtoken:
-        try:
-            # now we'll try getting oauth key by giving our uniqueid
-            r = requests.get("http://put.io/xbmc/k/%s" % uniqueid)
-            o = json.loads(r.content)
-            oauthtoken = o['oauthtoken']
-
-            if oauthtoken:
-                addon.setSetting("oauthkey", str(oauthtoken))
-                main()
-        except Exception as e:
+        if not oauthtoken:
             dialog = xbmcgui.Dialog()
-            dialog.ok("Oauth Key Error", str(e))
+            dialog.ok(
+                "Oauth2 Key Required",
+                "Visit http://put.io/xbmc and enter this code: %s\nthen press OK." % uniqueid
+            )
 
-            raise e
+        while not oauthtoken:
+            try:
+                # now we'll try getting oauth key by giving our uniqueid
+                r = requests.get("http://put.io/xbmc/k/%s" % uniqueid)
+                o = json.loads(r.content)
+                oauthtoken = o['oauthtoken']
 
-        time.sleep(1)
+                if oauthtoken:
+                    addon.setSetting("oauthkey", str(oauthtoken))
+                    main()
+            except Exception as e:
+                dialog = xbmcgui.Dialog()
+                dialog.ok("Oauth Key Error", str(e))
+
+                raise e
+
+            time.sleep(1)
+
+
+if sys.argv[1] == "OOC":
+    runOutOfContext()
+else:
+    main()
+
+
+
+

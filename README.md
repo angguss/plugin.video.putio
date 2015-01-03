@@ -9,7 +9,7 @@ away within various devices and software.
 This addon uses put.io's publicly available API which is written in Python. Any
 issues about this addon can be either reported via github issues or help.put.io
 
-This addon is now officialy supported by put.io.
+This addon is now officially supported by put.io.
 
 About XBMC
 ---------------------------------------

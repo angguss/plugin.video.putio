@@ -29,9 +29,13 @@ __all__ = ("populateDir", "play")
 
 addon = xa.Addon(PLUGIN_ID)
 
+def populateDir(pluginUrl, pluginId, listing, putio):
+    single_download_enabled = addon.getSetting('single_download_enabled')
 
-def populateDir(pluginUrl, pluginId, listing):
+    context_text = addon.getLocalizedString(30037)
+
     for item in listing:
+
         if item.screenshot:
             screenshot = item.screenshot
         else:
@@ -50,11 +54,24 @@ def populateDir(pluginUrl, pluginId, listing):
             screenshot
         )
 
+        commands = []
+
+        # commands.append((addon.getLocalizedString(30039), 'RunScript(' + PLUGIN_ID + ', OOC, download, "' + str(item.id) + '")', ))
+
+        if single_download_enabled == True or single_download_enabled == "true":
+            commands.append((context_text % addon.getLocalizedString(30016), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, single_dir, "' + str(item.id) + '")', ))
+        else:
+            commands.append((context_text % addon.getLocalizedString(30014), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, tv_dir, "' + str(item.id) + '")', ))
+            commands.append((context_text % addon.getLocalizedString(30013), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, movie_dir, "' + str(item.id) + '")', ))
+            commands.append((context_text % addon.getLocalizedString(30015), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, music_dir, "' + str(item.id) + '")', ))
+
         listItem.setInfo(item.content_type, {
             'originaltitle': item.name,
             'title': item.name,
             'sorttitle': item.name
         })
+
+        listItem.addContextMenuItems(commands)
 
         xp.addDirectoryItem(
             pluginId,

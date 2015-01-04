@@ -151,9 +151,16 @@ class PutioService(object):
                     dest_directory = new_dest_directory
 
             if clean_filenames:
+                resolution = ''
+                res = ['720p', '1080p', '1080i', '480p']
+                for r in res:
+                    if r in item.name.lower():
+                        resolution = r
+                        break
+
                 clean_title = xbmc.getCleanMovieTitle(item.name)
                 extension = os.path.splitext(filename)[1]
-                os.rename(os.path.join(dest_directory, filename), os.path.join(dest_directory, "{} [{}]{}".format(clean_title[0], clean_title[1], extension)))
+                os.rename(os.path.join(dest_directory, filename), os.path.join(dest_directory, "{} {} {}".format(clean_title[0], resolution, extension)))
             downloaded_file = True
 
 

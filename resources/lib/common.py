@@ -48,8 +48,8 @@ class PutioApiHandler(object):
     def getItemPath(self, itemId):
         return self.apiclient.File.get_path(itemId)
 
-    def downloadItem(self, item, destination, progress_callback, cancel_callback, resume_download):
-        return item.download(dest=destination, range=None, progress_callback=progress_callback, cancel_callback=cancel_callback, resume=resume_download)
+    def downloadItem(self, item, destination, progresscallback, cancelcallback, resume_download):
+        return item.download(dest=destination, range=None, progress_callback=progresscallback, cancel_callback=cancelcallback, resume=resume_download)
 
     def getRootListing(self):
         items = []

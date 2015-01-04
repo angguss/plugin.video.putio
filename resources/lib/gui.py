@@ -62,8 +62,8 @@ def populateDir(pluginUrl, pluginId, listing, putio):
             commands.append((context_text % __addon__.getLocalizedString(30016), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, single_dir, "' + str(item.id) + '")', ))
         else:
             commands.append((context_text % __addon__.getLocalizedString(30014), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, tv_dir, "' + str(item.id) + '")', ))
-            commands.append((context_text % __addon__.getLocalizedString(30013), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, movie_dir, "' + str(item.id) + '")', ))
-            commands.append((context_text % __addon__.getLocalizedString(30015), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, music_dir, "' + str(item.id) + '")', ))
+            commands.append((context_text % __addon__.getLocalizedString(30015), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, movie_dir, "' + str(item.id) + '")', ))
+            commands.append((context_text % __addon__.getLocalizedString(30013), 'RunScript(' + PLUGIN_ID + ', OOC, set_dir, music_dir, "' + str(item.id) + '")', ))
 
         listItem.setInfo(item.content_type, {
             'originaltitle': item.name,

@@ -204,7 +204,7 @@ class _File(_BaseResource):
     def stream_url(self):
         return API_URL + '/files/%s/stream?oauth_token=%s' % (self.id, self.client.access_token)
 
-    def download(self, dest='.', range=None, callback=None, resume=True):
+    def download(self, dest='.', range=None, progress_callback=None, cancel_callback=None, resume=True):
 
         # means that download was originally started but failed (kodi crash maybe?)
         if os.path.exists(os.path.join(dest, self.name + ".part")):
@@ -266,8 +266,8 @@ class _File(_BaseResource):
                 chunk_ct += 1
 
                 if chunk_ct > 32:
-                    if callback:
-                        callback(started_time, downloaded, downloaded_this_session, total_length, self.name)
+                    if progress_callback:
+                        progress_callback(started_time, downloaded, downloaded_this_session, total_length, self.name)
                     chunk_ct = 0
                 f.write(data)
 

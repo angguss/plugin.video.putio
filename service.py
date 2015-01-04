@@ -27,6 +27,7 @@ import xbmcgui as xg
 import xbmcplugin as xp
 from resources import PLUGIN_ID
 from resources.lib.common import PutioApiHandler
+from resources.lib.exceptions import PutioAuthFailureException
 __addon__ = xa.Addon(PLUGIN_ID)
 
 # Service to handle polling of Put.io API and download new files
@@ -209,12 +210,23 @@ class PutioService(object):
 
     def run(self):
         # need a putio api object
-        self.putioHandler = PutioApiHandler(__addon__.getAddonInfo("id"))
+        auth_failure = False
+        try:
+            self.putioHandler = PutioApiHandler(__addon__.getAddonInfo("id"))
+        except PutioAuthFailureException:
+            dialog = xg.Dialog()
+            dialog.ok(
+                "Putio Authentication Failure",
+                "The background service is unable to run without a valid OAuth2 key. Please obtain one and try again." +
+                "You will need to restart Kodi."
+            )
+            auth_failure = True
 
         xbmc.sleep(2000)
 
         i = 0
-        while(not xbmc.abortRequested):
+
+        while(not xbmc.abortRequested and not auth_failure):
             self.refreshSettings()
             single_download_mode = __addon__.getSetting("single_download_enabled")
             if single_download_mode == True or single_download_mode == "true":

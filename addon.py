@@ -24,7 +24,7 @@ import requests
 import sys
 import xbmc
 import xbmcaddon as xa
-import xbmcgui
+import xbmcgui as xg
 from resources.lib.common import PutioApiHandler
 from resources.lib.exceptions import PutioAuthFailureException
 from resources.lib.gui import play, populateDir
@@ -78,7 +78,7 @@ def set_dir(type, id):
         typeString = __addon__.getLocalizedString(30023)
 
     if was_set:
-        dialog = xbmcgui.Dialog()
+        dialog = xg.Dialog()
         dialog.ok(
                 __addon__.getLocalizedString(30019),
                 __addon__.getLocalizedString(30020) % typeString
@@ -102,7 +102,6 @@ def main():
             populateDir(pluginUrl, pluginId, putio.getRootListing(), putio)
     except PutioAuthFailureException as e:
         addonid = __addon__.getAddonInfo("id")
-        __addon__ = xa.Addon(addonid)
         r = requests.get("https://put.io/xbmc/getuniqueid")
         o = json.loads(r.content)
 
@@ -110,7 +109,7 @@ def main():
         oauthtoken = __addon__.getSetting('oauthkey')
 
         if not oauthtoken:
-            dialog = xbmcgui.Dialog()
+            dialog = xg.Dialog()
             dialog.ok(
                 "Oauth2 Key Required",
                 "Visit http://put.io/xbmc and enter this code: %s\nthen press OK." % uniqueid
@@ -127,7 +126,7 @@ def main():
                     __addon__.setSetting("oauthkey", str(oauthtoken))
                     main()
             except Exception as e:
-                dialog = xbmcgui.Dialog()
+                dialog = xg.Dialog()
                 dialog.ok("Oauth Key Error", str(e))
 
                 raise e

@@ -77,7 +77,7 @@ class PutioService(object):
         else:
             speed_formatted = '{0:.2f}'.format(speed) + "kb/s"
 
-        if self.progressdialog != None and total != -1 and self.show_download_bar:
+        if self.progressdialog and total != -1 and self.show_download_bar:
             percentage = (float(downloaded) / total) * 100
             self.progressdialog.update(int(percentage), __addon__.getLocalizedString(30036) % speed_formatted, name)
 
@@ -233,7 +233,7 @@ class PutioService(object):
 
         i = 0
 
-        while(not xbmc.abortRequested and not auth_failure):
+        while not xbmc.abortRequested and not auth_failure:
             self.refreshSettings()
             single_download_mode = __addon__.getSetting("single_download_enabled")
             if single_download_mode == True or single_download_mode == "true":

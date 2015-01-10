@@ -1,3 +1,11 @@
+About this addon
+---------------------------------------
+This addon provides functionality allowing users to stream files directly from put.io
+or alternately set up put.io directories to be monitored in order to automatically downloaded
+to the XBMC computer.
+The usage scenario for this: Add files to put.io at work during the day and
+to have them downloaded for when you get home without the need of setting up a VPN.
+
 About put.io
 ---------------------------------------
 

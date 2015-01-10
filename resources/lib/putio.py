@@ -259,6 +259,7 @@ class _File(_BaseResource):
         was_canceled = False
         started_time = time.time()
         downloaded_this_session = 0
+
         with open(os.path.join(dest, filename + ".part"), 'ab') as f:
             for data in r.iter_content(chunk_size=1024):
                 downloaded += len(data)
@@ -272,17 +273,16 @@ class _File(_BaseResource):
                 f.write(data)
 
                 if cancel_callback:
-                    if cancel_callback():
-                        was_canceled = True
+                    was_canceled = cancel_callback()
 
                 if was_canceled:
                     break
 
             download_finished = True
 
-        if not download_finished and was_canceled:
+        if was_canceled:
             os.delete(os.path.join(dest, filename + ".part"))
-        else:
+        elif download_finished:
             os.rename(os.path.join(dest, filename + ".part"), os.path.join(dest, filename))
 
     # delete method changed, now posts with files_id

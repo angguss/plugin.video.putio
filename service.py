@@ -52,11 +52,25 @@ class PutioService(object):
         self.time_to_wait = self.parseTime(__addon__.getSetting("poll_time"))
         self.resume_downloads = __addon__.getSetting("resume_downloads") == "true"
         self.recursive_scan = __addon__.getSetting("subfolder_search") == "true"
+        self.speed_limit_kbs = int(__addon__.getSetting("limit_download_speed"))
 
     # takes minutes, convert to millisec
     def parseTime(self, time):
 
         return int(time) * 60 * 1000
+
+    def updateProgressDialog(self, downloaded, speed, name, total):
+        if self.progressdialog and total != -1 and self.show_download_bar:
+            percentage = (float(downloaded) / total) * 100
+            self.progressdialog.update(int(percentage), __addon__.getLocalizedString(30036) % speed, name)
+
+    def formatSpeed(self, speed):
+        speed_formatted = __addon__.getLocalizedString(30040)
+        if speed > 1000:
+            speed_formatted = '{0:.2f}'.format(speed / 1024) + "mb/s"
+        else:
+            speed_formatted = '{0:.2f}'.format(speed) + "kb/s"
+        return speed_formatted
 
     def progressCallback(self, start_time, downloaded, downloaded_session, total, name):
         cur_time = time.time()
@@ -70,16 +84,28 @@ class PutioService(object):
             # default to kb, no-one's interested in b/s
             speed = (float(downloaded_session) / elapsed) / 1024
 
-        speed_formatted = 'Calculating...'
+        self.speed_limit_kbs = int(__addon__.getSetting("limit_download_speed"))
+        # calculate time to sleep in order to reduce the speed
+        sleep_time = 0
 
-        if speed > 1000:
-            speed_formatted = '{0:.2f}'.format(speed / 1024) + "mb/s"
-        else:
-            speed_formatted = '{0:.2f}'.format(speed) + "kb/s"
+        if self.speed_limit_kbs > 0:
+            slowed_speed = speed
 
-        if self.progressdialog and total != -1 and self.show_download_bar:
-            percentage = (float(downloaded) / total) * 100
-            self.progressdialog.update(int(percentage), __addon__.getLocalizedString(30036) % speed_formatted, name)
+            while slowed_speed >= self.speed_limit_kbs:
+                elapsed = time.time() - start_time
+                slowed_speed = (float(downloaded_session) / elapsed) / 1024
+                xbmc.sleep(100)
+                speed_formatted = self.formatSpeed(speed)
+                self.updateProgressDialog(downloaded, speed_formatted, name, total)
+
+        speed_formatted = self.formatSpeed(speed)
+        self.updateProgressDialog(downloaded, speed_formatted, name, total)
+
+        # if self.progressdialog and total != -1 and self.show_download_bar:
+        #     percentage = (float(downloaded) / total) * 100
+        #     self.progressdialog.update(int(percentage), __addon__.getLocalizedString(30036) % speed_formatted, name)
+
+
 
     # Callback to determine whether to kill this service
     def cancelCallback(self):
@@ -176,6 +202,7 @@ class PutioService(object):
         if check_directory == "-1" or dest_directory == "":
             xbmc.log("Single download is enabled but directories haven't been set up", level=xbmc.LOGDEBUG)
             return
+
         downloaded_file = self.download(check_directory, dest_directory)
         if downloaded_file:
             xbmc.executebuiltin('XBMC.UpdateLibrary(video)')
@@ -244,6 +271,10 @@ class PutioService(object):
                 self.multiDownload(self.types["tv"])
                 self.multiDownload(self.types["music"])
 
-            xbmc.sleep(self.time_to_wait)
+            time_left = self.time_to_wait
+            while xbmc.abortRequested and time_left > 0:
+                time_left -= 1000
+                xbmc.sleep(1000)
+
 
 putio = PutioService()

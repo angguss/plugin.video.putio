@@ -142,7 +142,7 @@ msgid "Max concurrent connections per download (not implemented)"
 msgstr ""
 
 msgctxt "#30028"
-msgid "Speed limit (kb/s) (not implemented)"
+msgid "Speed limit (kb/s)"
 msgstr ""
 
 msgctxt "#30029"
@@ -187,4 +187,8 @@ msgstr ""
 
 msgctxt "#30039"
 msgid "Download now"
+msgstr ""
+
+msgctxt "#30040"
+msgid "Calculating..."
 msgstr ""

@@ -42,7 +42,6 @@ class PutioService(object):
             "music": 2
         }
 
-
         self.refreshSettings()
         self.run()
 
@@ -101,16 +100,11 @@ class PutioService(object):
         speed_formatted = self.formatSpeed(speed)
         self.updateProgressDialog(downloaded, speed_formatted, name, total)
 
-        # if self.progressdialog and total != -1 and self.show_download_bar:
-        #     percentage = (float(downloaded) / total) * 100
-        #     self.progressdialog.update(int(percentage), __addon__.getLocalizedString(30036) % speed_formatted, name)
-
-
-
     # Callback to determine whether to kill this service
     def cancelCallback(self):
         return xbmc.abortRequested
 
+    # Traverse a put.io directory and get all non-directory items
     def traverseDirectory(self, id, recursive = True):
         folder_listing = self.putioHandler.getFolderListing(id)
         item_listing = []
@@ -132,13 +126,13 @@ class PutioService(object):
         item_listing = self.traverseDirectory(check_directory, self.recursive_scan)
 
         progress_total = len(item_listing)
-        progress = 1
 
         if progress_total <= 0:
             return
 
         self.show_download_bar = __addon__.getSetting("show_download_bar") == "true"
 
+        # if the download bar is enabled, create one
         if self.show_download_bar:
             self.progressdialog = xg.DialogProgressBG()
             self.progressdialog.create(__addon__.getLocalizedString(30036) % '', '')
@@ -146,14 +140,18 @@ class PutioService(object):
         delete_after_download = __addon__.getSetting("delete_after_download") == "true"
         clean_filenames = __addon__.getSetting("clean_filenames") == "true"
 
+        # Need to keep track of whether the file has been downloaded
         downloaded_file = False
 
         for item in item_listing:
             if self.show_download_bar:
                 self.progressdialog.update(0, __addon__.getLocalizedString(30036) % item.name, item.name)
-            # do non-recursion at the moment
+
+            # Currently synchronous call
+            # TODO: Implement concurrent downloads if setting is > 1
             self.putioHandler.downloadItem(item, dest_directory, self.progressCallback, self.cancelCallback, self.resume_downloads)
 
+            # At this point the file is downloaded, we can now do some post-processing
             if delete_after_download:
                 item.delete()
 
@@ -161,10 +159,9 @@ class PutioService(object):
                 subdirectory = xbmc.getCleanMovieTitle(item.name)[0]
                 subdirectory = re.sub(r'(S[0-9][0-9]E[0-9][0-9])', '', subdirectory)
                 subdirectory = xbmc.makeLegalFilename(subdirectory).strip()
-                # check if directory already exists
-                new_dest_directory = os.path.join(dest_directory, subdirectory)
 
-                new_dest_directory = new_dest_directory.strip()
+                # check if directory already exists
+                new_dest_directory = os.path.join(dest_directory, subdirectory).strip()
 
                 if not os.path.exists(new_dest_directory):
                     os.mkdir(new_dest_directory)
@@ -176,6 +173,8 @@ class PutioService(object):
                     # library updates
                     dest_directory = new_dest_directory
 
+            # Some people like to have files renamed to keep it tidy
+            # TODO: Make this user configurable, based on string maybe?
             if clean_filenames:
                 resolution = ''
                 res = ['720p', '1080p', '1080i', '480p']
@@ -186,7 +185,10 @@ class PutioService(object):
 
                 clean_title = xbmc.getCleanMovieTitle(item.name)
                 extension = os.path.splitext(filename)[1]
-                os.rename(os.path.join(dest_directory, filename), os.path.join(dest_directory, "{} {} {}".format(clean_title[0], resolution, extension)))
+                os.rename(
+                    os.path.join(dest_directory, filename),
+                    os.path.join(dest_directory, "{} {} {}".format(clean_title[0], resolution, extension))
+                    )
             downloaded_file = True
 
 
@@ -234,10 +236,9 @@ class PutioService(object):
 
         downloaded_file = self.download(check_directory, dest_directory, move_to_subdirectory)
 
+        # Only update library for the type and if the download actually finished
         if downloaded_file:
-            if download_type == self.types["movies"]:
-                xbmc.executebuiltin('XBMC.UpdateLibrary(video)')
-            elif download_type == self.types["tv"]:
+            if download_type == self.types["movies"] or download_type == self.types["tv"]:
                 xbmc.executebuiltin('XBMC.UpdateLibrary(video)')
             elif download_type == self.types["music"]:
                 xbmc.executebuiltin('XBMC.UpdateLibrary(music)')
@@ -250,9 +251,9 @@ class PutioService(object):
         except PutioAuthFailureException:
             dialog = xg.Dialog()
             dialog.ok(
-                "Putio Authentication Failure",
-                "The background service is unable to run without a valid OAuth2 key. Please obtain one and try again." +
-                "You will need to restart Kodi."
+                __addon__.getLocalizedString(30001),
+                __addon__.getLocalizedString(30041) +
+                __addon__.getLocalizedString(30042)
             )
             auth_failure = True
 
@@ -263,7 +264,8 @@ class PutioService(object):
         while not xbmc.abortRequested and not auth_failure:
             self.refreshSettings()
             single_download_mode = __addon__.getSetting("single_download_enabled")
-            if single_download_mode == True or single_download_mode == "true":
+
+            if single_download_mode == "true":
                 self.singleDownload()
             else:
                 # multi download mode, separate directories for music, movies and TV. Need to check

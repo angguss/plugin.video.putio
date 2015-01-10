@@ -192,3 +192,11 @@ msgstr ""
 msgctxt "#30040"
 msgid "Calculating..."
 msgstr ""
+
+msgctxt "#30041"
+msgid "The background service is unable to run without a valid OAuth2 key. Please obtain one and try again."
+msgstr ""
+
+msgctxt "#30042"
+msgid "You will need to restart Kodi afterwards."
+msgstr ""

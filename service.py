@@ -55,13 +55,13 @@ class PutioService(object):
 
     # takes minutes, convert to millisec
     def parseTime(self, time):
-
         return int(time) * 60 * 1000
 
     def updateProgressDialog(self, downloaded, speed, name, total):
-        if self.progressdialog and total != -1 and self.show_download_bar:
-            percentage = (float(downloaded) / total) * 100
-            self.progressdialog.update(int(percentage), __addon__.getLocalizedString(30036) % speed, name)
+        if self.show_download_bar:
+            if self.progressdialog and total != -1:
+                percentage = (float(downloaded) / total) * 100
+                self.progressdialog.update(int(percentage), __addon__.getLocalizedString(30036) % speed, name)
 
     def formatSpeed(self, speed):
         speed_formatted = __addon__.getLocalizedString(30040)

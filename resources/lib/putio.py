@@ -281,7 +281,7 @@ class _File(_BaseResource):
             download_finished = True
 
         if was_canceled:
-            os.delete(os.path.join(dest, filename + ".part"))
+            os.remove(os.path.join(dest, filename + ".part"))
         elif download_finished:
             os.rename(os.path.join(dest, filename + ".part"), os.path.join(dest, filename))
 
